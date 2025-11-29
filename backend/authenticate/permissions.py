@@ -1,0 +1,15 @@
+from rest_framework.permissions import BasePermission
+
+class IsAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.groups.filter(name='admin').exists()
+
+class IsColleague(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.groups.filter(name='colleague').exists()
+
+class IsPassenger(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.groups.filter(name='passenger').exists()
+
+
