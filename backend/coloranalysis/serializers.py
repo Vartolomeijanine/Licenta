@@ -6,4 +6,7 @@ class ColorAnalysisResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = ColorAnalysisResult
         fields = ("id", "image", "season", "confidence", "created_at")
-        read_only_fields = ("confidence", "created_at")
+        read_only_fields = ("confidence", "created_at", "season")
+        extra_kwargs = {
+            'image': {'required': True}
+        }
