@@ -2,10 +2,14 @@ from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import random
+from django.shortcuts import get_object_or_404
 
 from .models import ColorAnalysisResult
 from .serializers import ColorAnalysisResultSerializer
+from coloranalysis.ai.predictor import SeasonPredictorService
+
+
+predictor_service = SeasonPredictorService()
 
 
 class ColorAnalysisCreateView(APIView):
@@ -15,21 +19,31 @@ class ColorAnalysisCreateView(APIView):
     def post(self, request):
         """
         Creează o analiză cromatică nouă pentru userul logat.
-        MOCK: Returnează sezon random + confidence score
         """
-        serializer = ColorAnalysisResultSerializer(data=request.data)
+        image_file = request.FILES.get("image")
+        serializer = ColorAnalysisResultSerializer(data={"image": image_file})
         if serializer.is_valid():
-            # MOCK AI - returnează sezon random cu confidence
-            seasons = ["spring", "summer", "autumn", "winter"]
-            mock_season = random.choice(seasons)
-            mock_confidence = round(random.uniform(0.7, 0.99), 2)
-            
-            # Salvează cu sezonul mock și confidence
-            instance = serializer.save(
-                user=request.user,
-                season=mock_season,
-                confidence=mock_confidence
+            is_hair_visible = request.data.get("is_hair_visible", "yes")
+            is_hair_natural = request.data.get("is_hair_natural", "yes")
+            natural_hair_color = request.data.get("natural_hair_color")
+
+            # Save the uploaded image first so the predictor can read it from disk.
+            instance = serializer.save(user=request.user, season="spring", confidence=None)
+
+            analysis_result = predictor_service.predict_from_image(
+                instance.image.path,
+                is_hair_visible=is_hair_visible,
+                is_hair_natural=is_hair_natural,
+                natural_hair_color=natural_hair_color,
             )
+
+            if not analysis_result.get("success"):
+                return Response(analysis_result, status=status.HTTP_400_BAD_REQUEST)
+
+            prediction = analysis_result["prediction"]
+            instance.season = prediction["predicted_season"]
+            instance.confidence = prediction.get("confidence")
+            instance.save(update_fields=["season", "confidence"])
             
             response_data = {
                 "id": instance.id,
@@ -37,7 +51,9 @@ class ColorAnalysisCreateView(APIView):
                 "season": instance.season,
                 "confidence": instance.confidence,
                 "created_at": instance.created_at,
-                "message": f"Analiză completă! Sezonul detectat: {instance.season.upper()} (confidence: {instance.confidence})"
+                "predicted_season_label": prediction.get("predicted_season_label"),
+                "message": f"Analiză completă! Sezonul detectat: {instance.season.upper()} (confidence: {instance.confidence})",
+                "features": analysis_result.get("features"),
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -56,3 +72,12 @@ class ColorAnalysisHistoryView(APIView):
         ).order_by("-created_at")
         serializer = ColorAnalysisResultSerializer(analyses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ColorAnalysisDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        analysis = get_object_or_404(ColorAnalysisResult, pk=pk, user=request.user)
+        analysis.delete()
+        return Response({"message": "Analysis deleted successfully."}, status=status.HTTP_200_OK)

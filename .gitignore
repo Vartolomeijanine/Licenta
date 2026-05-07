@@ -1,0 +1,199 @@
+# =========================
+# IDE / JetBrains / PyCharm
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code optional
+.vscode/
+
+# =========================
+# Python virtual environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+backend/.venv/
+backend/.venv*/
+backend/venv/
+backend/env/
+backend/ENV/
+
+# =========================
+# Python cache / compiled files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+
+# =========================
+# Python build / packaging
+# =========================
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =========================
+# Installer / pip logs
+# =========================
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Testing / coverage
+# =========================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# =========================
+# Type checkers / linters
+# =========================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+pyrightconfig.json
+
+# =========================
+# Django / backend local files
+# =========================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+
+# =========================
+# Environment variables / secrets
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Jupyter / notebooks cache
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# OS generated files
+# =========================
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# =========================
+# Generated media / uploads
+# =========================
+media/
+backend/media/
+backend/media/color_analysis/
+
+# =========================
+# Dataset images - DO NOT PUSH
+# =========================
+backend/dataset/images/
+backend/dataset/**/images/
+backend/dataset/**/*_images/
+backend/dataset/**/*.jpg
+backend/dataset/**/*.jpeg
+backend/dataset/**/*.png
+backend/dataset/**/*.webp
+backend/dataset/**/*.bmp
+
+# If you later want a few demo images, put them here and uncomment:
+# !backend/dataset/example_images/
+# !backend/dataset/example_images/*.jpg
+# !backend/dataset/example_images/*.jpeg
+# !backend/dataset/example_images/*.png
+
+# =========================
+# Generated dataset outputs
+# =========================
+backend/dataset/random_forest_test_predictions.csv
+backend/dataset/removed_ambiguous_samples.csv
+backend/dataset/high_confidence_suspicious_samples.csv
+backend/dataset/final_cv_summary.csv
+
+DATASET CFD/
+
+# Keep labels if you need them
+# labels.csv will NOT be ignored by this file
+
+# =========================
+# ML model artifacts
+# =========================
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# If you really want to commit one final model, uncomment this:
+# !backend/dataset/season_random_forest.pkl
+
+# =========================
+# Executables / generated binaries
+# =========================
+*.exe
+*.dll
+
+# =========================
+# Frontend / Node, if added later
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.temp
+*.bak
+*.swp
