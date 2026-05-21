@@ -29,6 +29,9 @@ class ColorAnalysisResult(models.Model):
         help_text="Confidence score between 0 and 1."
     )
 
+    try_on_images = models.JSONField(null=True, blank=True)
+    try_on_error = models.TextField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

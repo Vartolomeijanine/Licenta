@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from .models import ColorAnalysisResult
 from .serializers import ColorAnalysisResultSerializer
 from coloranalysis.ai.predictor import SeasonPredictorService
+from coloranalysis.ai.tryon import generate_tryon_images_for_analysis
 
 
 predictor_service = SeasonPredictorService()
@@ -44,16 +45,35 @@ class ColorAnalysisCreateView(APIView):
             instance.season = prediction["predicted_season"]
             instance.confidence = prediction.get("confidence")
             instance.save(update_fields=["season", "confidence"])
+
+            try_on_images = None
+            try_on_error = None
+
+            try:
+                try_on_images = generate_tryon_images_for_analysis(
+                    image_path=instance.image.path,
+                    season=instance.season,
+                    analysis_id=str(instance.id),
+                )
+            except Exception:
+                try_on_error = "Virtual try-on generation failed."
+
+            instance.try_on_images = try_on_images
+            instance.try_on_error = try_on_error
+            instance.save(update_fields=["try_on_images", "try_on_error"])
             
             response_data = {
                 "id": instance.id,
                 "image": request.build_absolute_uri(instance.image.url) if instance.image else None,
+                "originalImageUrl": request.build_absolute_uri(instance.image.url) if instance.image else None,
                 "season": instance.season,
                 "confidence": instance.confidence,
                 "created_at": instance.created_at,
                 "predicted_season_label": prediction.get("predicted_season_label"),
                 "message": f"Analiză completă! Sezonul detectat: {instance.season.upper()} (confidence: {instance.confidence})",
                 "features": analysis_result.get("features"),
+                "tryOnImages": try_on_images,
+                "tryOnError": try_on_error,
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -70,7 +90,11 @@ class ColorAnalysisHistoryView(APIView):
         analyses = ColorAnalysisResult.objects.filter(
             user=request.user
         ).order_by("-created_at")
-        serializer = ColorAnalysisResultSerializer(analyses, many=True)
+        serializer = ColorAnalysisResultSerializer(
+            analyses,
+            many=True,
+            context={"request": request},
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

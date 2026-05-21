@@ -59,9 +59,25 @@ export default function Auth(){
 
   return (
     <div className="page auth card">
-      <div className="tabs">
-        <button className={tab==='login'?'active':''} onClick={()=>setTab('login')}>Login</button>
-        <button className={tab==='register'?'active':''} onClick={()=>setTab('register')}>Register</button>
+      <div className="auth-tabs" role="tablist" aria-label="Authentication">
+        <button
+          type="button"
+          className={`auth-tab ${tab==='login' ? 'active' : ''}`}
+          onClick={()=>setTab('login')}
+          role="tab"
+          aria-selected={tab==='login'}
+        >
+          Login
+        </button>
+        <button
+          type="button"
+          className={`auth-tab ${tab==='register' ? 'active' : ''}`}
+          onClick={()=>setTab('register')}
+          role="tab"
+          aria-selected={tab==='register'}
+        >
+          Register
+        </button>
       </div>
 
       {tab==='login' && (
