@@ -9,8 +9,6 @@ from .views.protected_view import ProtectedView
 from .views.register_view import RegisterView, AdminCreateColleagueView
 from .views.roles_view import AdminView
 
-#DE MODIF
-
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
