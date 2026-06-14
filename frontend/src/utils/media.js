@@ -1,15 +1,24 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_BASE || ""
 
 export function resolveMediaUrl(url) {
   if (!url) {
-    return ''
+    return ""
   }
 
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  // Fix for backend returning http://localhost/media/... without port
+  if (url.startsWith("http://localhost/media/")) {
+    return url.replace("http://localhost", "")
+  }
+
+  if (url.startsWith("http://127.0.0.1/media/")) {
+    return url.replace("http://127.0.0.1", "")
+  }
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url
   }
 
-  if (url.startsWith('/')) {
+  if (url.startsWith("/")) {
     return `${API_BASE}${url}`
   }
 

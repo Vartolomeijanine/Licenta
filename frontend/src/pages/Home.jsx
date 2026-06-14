@@ -1,30 +1,104 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+const beforeAfterExamples = [
+  {
+    before: new URL('../../poze frontend/spr/spr1_before.jpg', import.meta.url).href,
+    after: new URL('../../poze frontend/spr/spr1_after.webp', import.meta.url).href,
+    season: 'Spring'
+  },
+  {
+    before: new URL('../../poze frontend/win/win2_before.jpg', import.meta.url).href,
+    after: new URL('../../poze frontend/win/win2_after.webp', import.meta.url).href,
+    season: 'Winter'
+  },
+  {
+    before: new URL('../../poze frontend/aut/aut3_before.jpg', import.meta.url).href,
+    after: new URL('../../poze frontend/aut/aut3_after.jpg', import.meta.url).href,
+    season: 'Autumn'
+  },
+  {
+    before: new URL('../../poze frontend/sum/sum2_before.jpg', import.meta.url).href,
+    after: new URL('../../poze frontend/sum/sum2_after.webp', import.meta.url).href,
+    season: 'Summer'
+  }
+]
+
 export default function Home(){
-  const heroPalettes = [
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const startLink = typeof window !== 'undefined' && localStorage.getItem('access') ? '/analysis/new' : '/auth'
+  const mockAnalysisFlow = [
+    {
+      key: 'initial',
+      label: 'Initial Photo',
+      note: 'Before analysis',
+      tone: 'neutral',
+      image: new URL('../../anne1.png', import.meta.url).href
+    },
+    {
+      key: 'best',
+      label: 'Best Colors',
+      note: 'Brighter and more balanced',
+      tone: 'best',
+      image: new URL('../../anne2.png', import.meta.url).href,
+      colorName: 'Berry',
+      colorHex: '#BE185D'
+    },
+    {
+      key: 'worst',
+      label: 'Worst Colors',
+      note: 'Can look washed out',
+      tone: 'worst',
+      image: new URL('../../anne3.png', import.meta.url).href,
+      colorName: 'Warm Beige',
+      colorHex: '#D9B382'
+    }
+  ]
+  const seasonalCards = [
     {
       name: 'Spring',
-      emoji: '🌸',
-      colors: ['#F6D58A', '#F2B07C', '#F07C63', '#B9D75B', '#8FD8B5', '#6EC7D6']
+      description: 'Warm, light, fresh, bright',
+      paletteImage: new URL('../../Spring.png', import.meta.url).href,
+      exampleImage: new URL('../../poze frontend/spr/spr2_after.webp', import.meta.url).href
     },
     {
       name: 'Summer',
-      emoji: '🍃',
-      colors: ['#D9A4B5', '#C996B4', '#B07FA7', '#9AA0C4', '#6F8FAE', '#5B7C97']
+      description: 'Cool, soft, muted, elegant',
+      paletteImage: new URL('../../Summer.png', import.meta.url).href,
+      exampleImage: new URL('../../poze frontend/sum/sum1_after.jpg', import.meta.url).href
     },
     {
       name: 'Autumn',
-      emoji: '🍂',
-      colors: ['#E3974C', '#D67A3E', '#B55A2A', '#9C7C39', '#7C8B4A', '#3F7A60']
+      description: 'Warm, earthy, rich, deep',
+      paletteImage: new URL('../../Autumn.png', import.meta.url).href,
+      exampleImage: new URL('../../poze frontend/aut/aut2_after.jpg', import.meta.url).href
     },
     {
       name: 'Winter',
-      emoji: '❄️',
-      colors: ['#E1165A', '#B20C58', '#6C2C7F', '#4E43A6', '#1D4E9D', '#2D2E3C']
+      description: 'Cool, bold, high-contrast, vivid',
+      paletteImage: new URL('../../Winter.png', import.meta.url).href,
+      exampleImage: new URL('../../poze frontend/win/win1_after.webp', import.meta.url).href
     }
   ]
 
+  const slideSize = 2
+  const totalSlides = Math.max(1, Math.ceil(beforeAfterExamples.length / slideSize))
+  const currentExamples = beforeAfterExamples.length
+    ? [
+        beforeAfterExamples[(currentSlide * slideSize) % beforeAfterExamples.length],
+        beforeAfterExamples[(currentSlide * slideSize + 1) % beforeAfterExamples.length]
+      ]
+    : []
+
+  const nextSlide = () => {
+    if (totalSlides <= 1) return
+    setCurrentSlide((slide) => (slide + 1) % totalSlides)
+  }
+
+  const prevSlide = () => {
+    if (totalSlides <= 1) return
+    setCurrentSlide((slide) => (slide - 1 + totalSlides) % totalSlides)
+  }
   return (
     <div className="page home-landing">
       <section className="landing-hero">
@@ -39,7 +113,7 @@ export default function Home(){
             hair, and eyes so you can choose clothes and makeup with confidence.
           </p>
           <div className="hero-actions">
-            <Link to="/auth" className="btn primary">Start Your Color Analysis</Link>
+            <Link to={startLink} className="btn primary">Start Your Color Analysis</Link>
             <a href="#how-it-works" className="btn outline">Learn How It Works</a>
           </div>
           <div className="hero-badges">
@@ -48,40 +122,31 @@ export default function Home(){
             <div className="hero-badge"><span className="badge-dot" aria-hidden="true"></span>Results in Minutes</div>
           </div>
         </div>
-
         <div className="hero-panel">
           <div className="upload-card">
             <div className="upload-header">
-              <div className="upload-title">Upload a clear selfie</div>
-              <div className="upload-subtitle">Use natural light for best results</div>
+              <div className="upload-title">AI generates photos with colors that look best and worst on you</div>
             </div>
-            <div className="upload-preview">
-              <img className="preview-face-image" src={new URL('../../emma.webp', import.meta.url).href} alt="preview face" />
+
+            <div className="mock-flow-grid" aria-label="Mock analysis preview">
+              {mockAnalysisFlow.map((item) => (
+                <div className={`mock-flow-card ${item.tone}`} key={item.key}>
+                  <img className="mock-flow-photo" src={item.image} alt={item.label} />
+                  <div className="mock-flow-label">{item.label}</div>
+                  <div className="mock-flow-note">{item.note}</div>
+                  {item.colorName && (
+                    <div className="mock-flow-color-row">
+                      <span
+                        className="mock-flow-color-dot"
+                        style={{ backgroundColor: item.colorHex }}
+                        aria-hidden="true"
+                      ></span>
+                      <span className="mock-flow-color-name">{item.colorName}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <button className="btn outline" type="button">Upload Photo</button>
-            <div className="upload-note">JPG, PNG - Max 10MB</div>
-          </div>
-          <div className="season-panel">
-            <div className="season-panel-title">The 4 Seasonal Palettes</div>
-            {heroPalettes.map((palette) => (
-              <div className="season-panel-item" key={palette.name}>
-                <div className="season-row">
-                  <span className="season-emoji" aria-hidden="true">{palette.emoji}</span>
-                  <span className="season-name">{palette.name}</span>
-                </div>
-                <div className="season-swatches">
-                  {palette.colors.map((color) => (
-                    <span
-                      className="season-swatch"
-                      style={{ background: color }}
-                      key={color}
-                      title={color}
-                    ></span>
-                  ))}
-                  <span className="season-ellipsis" aria-hidden="true">...</span>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -130,31 +195,87 @@ export default function Home(){
             <span className="mini-title">Shop with more confidence</span>
           </div>
         </div>
+
+        <div className="before-after-section">
+          <div className="before-after-card">
+            <div className="before-after-header">
+              <div>
+                <h3>Before and After Color Analysis</h3>
+                <p>
+                  See how the right seasonal palette can make the face look brighter, more balanced and more harmonious.
+                </p>
+              </div>
+            </div>
+
+            <div className="before-after-carousel">
+              <button
+                className="carousel-btn carousel-btn-left"
+                type="button"
+                onClick={prevSlide}
+                aria-label="Previous before and after examples"
+              >
+                <svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
+                  <path d="M14.5 5.5L8 12l6.5 6.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                </svg>
+              </button>
+
+              <div className="before-after-grid">
+                {currentExamples.map((example, index) => (
+                  <article className="before-after-example" key={`${example.season}-${index}-${currentSlide}`}>
+                    <span className="season-chip">{example.season}</span>
+                    <div className="before-after-images">
+                      <div className="before-after-image-box">
+                        <span className="before-after-label">Before</span>
+                        <img className="before-after-photo" src={example.before} alt={`${example.season} before color analysis`} />
+                      </div>
+                      <div className="before-after-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 48 24" role="img" focusable="false">
+                          <path d="M2 12h34" strokeLinecap="round" strokeLinejoin="round"></path>
+                          <path d="M28 4l8 8-8 8" strokeLinecap="round" strokeLinejoin="round"></path>
+                        </svg>
+                      </div>
+                      <div className="before-after-image-box">
+                        <span className="before-after-label">After</span>
+                        <img className="before-after-photo" src={example.after} alt={`${example.season} after color analysis`} />
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <button
+                className="carousel-btn carousel-btn-right"
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next before and after examples"
+              >
+                <svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
+                  <path d="M9.5 5.5L16 12l-6.5 6.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="card season-overview">
         <h2>The 4 seasonal palettes</h2>
         <div className="season-grid">
-          <article className="season-card">
-            <h4>Spring</h4>
-            <p>Warm, light, fresh, bright</p>
-            <img className="season-image" src={new URL('../../Spring.png', import.meta.url).href} alt="Spring palette" />
-          </article>
-          <article className="season-card">
-            <h4>Summer</h4>
-            <p>Cool, soft, muted, elegant</p>
-            <img className="season-image" src={new URL('../../Summer.png', import.meta.url).href} alt="Summer palette" />
-          </article>
-          <article className="season-card">
-            <h4>Autumn</h4>
-            <p>Warm, earthy, rich, deep</p>
-            <img className="season-image" src={new URL('../../Autumn.png', import.meta.url).href} alt="Autumn palette" />
-          </article>
-          <article className="season-card">
-            <h4>Winter</h4>
-            <p>Cool, bold, high-contrast, vivid</p>
-            <img className="season-image" src={new URL('../../Winter.png', import.meta.url).href} alt="Winter palette" />
-          </article>
+          {seasonalCards.map((season) => (
+            <article className="season-card" key={season.name}>
+              <h4>{season.name}</h4>
+              <p>{season.description}</p>
+              <img className="season-image" src={season.paletteImage} alt={`${season.name} palette`} />
+              <div className="season-example-block">
+                <span className="season-example-label">Example look</span>
+                <img
+                  className="season-example-image"
+                  src={season.exampleImage}
+                  alt={`${season.name} example look`}
+                />
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -287,7 +408,7 @@ export default function Home(){
           <h3>Ready to discover your best colors?</h3>
           <p>Start your AI color analysis in less than 2 minutes.</p>
         </div>
-        <Link to="/auth" className="btn primary">Start Your Color Analysis</Link>
+        <Link to={startLink} className="btn primary">Start Your Color Analysis</Link>
       </section>
 
       <footer className="landing-footer">

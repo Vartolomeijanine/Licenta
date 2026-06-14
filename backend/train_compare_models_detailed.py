@@ -227,7 +227,7 @@ def evaluate_cv(name, classifier, X, y):
 
 def main():
     df = pd.read_csv(DATASET_PATH)
-    df = add_final_features(df)
+    #df = add_final_features(df)
 
     print("\n==============================")
     print("DATASET INFO")
@@ -237,34 +237,47 @@ def main():
 
     target_column = "season"
 
-    excluded_features = [
-        "image_name",
-        target_column,
+    # excluded_features = [
+    #     "image_name",
+    #     target_column,
 
-        # hue features removed because they are unstable under lighting changes
-        "avg_skin_H",
-        "avg_eye_H",
-        "hair_H",
-        "skin_eye_H_diff",
-        "skin_hair_H_diff",
-        "eye_hair_H_diff",
-        "cheek_H_diff",
-        "forehead_vs_cheeks_H_diff",
-    ]
+    #     # hue features removed because they are unstable under lighting changes
+    #     "avg_skin_H",
+    #     "avg_eye_H",
+    #     "hair_H",
+    #     "skin_eye_H_diff",
+    #     "skin_hair_H_diff",
+    #     "eye_hair_H_diff",
+    #     "cheek_H_diff",
+    #     "forehead_vs_cheeks_H_diff",
+    # ]
 
-    selected_features = [
-        col for col in df.columns
-        if col not in excluded_features
-    ]
+    # selected_features = [
+    #     col for col in df.columns
+    #     if col not in excluded_features
+    # ]
+
+    # print("\n==============================")
+    # print("FEATURE INFO")
+    # print("==============================")
+    # print(f"Selected features: {len(selected_features)}")
+    # print(selected_features)
+
+    # X = df[selected_features].copy()
+    # y = df[target_column]
+
+    if "image_name" in df.columns:
+        X = df.drop(columns=["image_name", target_column]).copy()
+    else:
+        X = df.drop(columns=[target_column]).copy()
+
+    y = df[target_column].astype(str)
 
     print("\n==============================")
     print("FEATURE INFO")
     print("==============================")
-    print(f"Selected features: {len(selected_features)}")
-    print(selected_features)
-
-    X = df[selected_features].copy()
-    y = df[target_column]
+    print(f"Selected features: {len(X.columns)}")
+    print(list(X.columns))        
 
     categorical_cols = [
         "is_hair_visible",
@@ -313,9 +326,12 @@ def main():
         ),
 
         "Random Forest": RandomForestClassifier(
-            n_estimators=800,
+            n_estimators=700,
+            max_depth=12,
+            min_samples_split=4,
+            min_samples_leaf=2,
             max_features="sqrt",
-            min_samples_leaf=1,
+            bootstrap=True,
             class_weight="balanced_subsample",
             random_state=42,
             n_jobs=-1,

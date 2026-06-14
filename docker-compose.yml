@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16
+    container_name: color-analysis-db
+    environment:
+      POSTGRES_DB: color_analysis_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: color-analysis-backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/media:/app/media
+      - C:/Users/Janine/AppData/Roaming/gcloud:/root/.config/gcloud:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_NAME: color_analysis_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: db
+      DB_PORT: "5432"
+      DEBUG: "1"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
+      GOOGLE_CLOUD_PROJECT: "project-189ae7e3-e06f-4a6a-925"
+      GOOGLE_CLOUD_LOCATION: "global"
+      GOOGLE_GENAI_USE_VERTEXAI: "True"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: color-analysis-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

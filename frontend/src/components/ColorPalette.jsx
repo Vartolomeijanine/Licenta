@@ -1,7 +1,7 @@
 import React from 'react'
 
 const PALETTES = {
-  spring: ['#E74C40', '#F17D49', '#F9C95D', '#9EC97A', '#EE9F7F'],
+  spring: ['#F4A6B8', '#E74C40', '#F17D49', '#F9C95D', '#9EC97A'],
   summer: ['#E77995', '#F19CA7', '#F1DBE5', '#87A9C7', '#62589D'],
   autumn: ['#AA372B', '#CA5E2A', '#D49D34', '#556D38', '#AD7545'],
   winter: ['#E12C63', '#49377C', '#F4F5F8', '#385786', '#121216']
