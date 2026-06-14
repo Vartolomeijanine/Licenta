@@ -17,10 +17,33 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.contrib.auth import authenticate, login
+from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 
 from authenticate.views.login_view import LoginView
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def session_login(request):
+    """Login cu sesiune Django (funcționează din browser)"""
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    if not email or not password:
+        return Response({'detail': 'Email and password required'}, status=400)
+    
+    user = authenticate(request, username=email, password=password)
+    
+    if user is None:
+        return Response({'detail': 'Invalid credentials'}, status=401)
+    
+    login(request, user)
+    return Response({'message': f'Logat ca {email}'}, status=200)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -30,7 +53,11 @@ urlpatterns = [
     # login cu email
     path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/login/", session_login, name="session_login"),
     path("api/coloranalysis/", include("coloranalysis.urls")),
+    
+    # Upload page
+    path("upload/", TemplateView.as_view(template_name='upload.html'), name='upload'),
 ]
 
 if settings.DEBUG:
